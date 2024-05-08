@@ -16,8 +16,6 @@ func NewHelpCashService(mqtt handler.MqttRepository,
 		logger: logger}
 }
 
-var topic_base = "/tex/helper/cashctl/"
-
 var topicHelpCash = [19]string{
 	"request_in_start",
 	"request_in_end",
@@ -39,10 +37,10 @@ var topicHelpCash = [19]string{
 	"notice_amount_status",
 	"notice_status"}
 
-func (c *helpCashService) Start() {
-	c.mqtt.Subscribe("/tex/helper/cashctl/request_in_start", c.RecvRequestInStart)
+func (c *helpCashService) StartHelpCash() {
+	c.mqtt.Subscribe("/tex/helper/cashctl/request_amount_status", c.RecvRequestAmountStatus)
 }
 
-func (c *helpCashService) RecvRequestInStart(message string) {
+func (c *helpCashService) RecvRequestAmountStatus(message string) {
 
 }

@@ -54,7 +54,7 @@ var topicName = [TOPIC_NUMBER]string{
 
 // 開始処理
 func (c *communicateWithClient) Snalio1() {
-	c.mqtt.Subscribe("/tex/unifunc/money/notice_status_cash", c.Snalio1_RecvNoticeStatusCash)
+	c.mqtt.Subscribe("/tex/unifunc/money/notice_status_cash", c.RecvNoticeStatusCash)
 	/*var recvFunc = [TOPIC_NUMBER]func(string){
 		//"request_money_init",
 		//"request_money_exchange",
@@ -89,7 +89,7 @@ func (c *communicateWithClient) Snalio1() {
 }
 
 //通知のチェック
-func (c *communicateWithClient) Snalio1_RecvNoticeStatusCash(message string) {
+func (c *communicateWithClient) RecvNoticeStatusCash(message string) {
 	var statusCash domain.StatusCash
 
 	err := json.Unmarshal([]byte(message), &statusCash)
