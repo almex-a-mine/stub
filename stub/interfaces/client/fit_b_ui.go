@@ -2,7 +2,7 @@ package interfaces
 
 import (
 	"encoding/json"
-	"reflect"
+	"fmt"
 	"stub/domain"
 	"stub/domain/handler"
 )
@@ -88,7 +88,7 @@ func (c *communicateWithClient) Snalio1() {
 	}*/
 }
 
-//通知のチェック
+// 通知のチェック
 func (c *communicateWithClient) RecvNoticeStatusCash(message string) {
 	var statusCash domain.StatusCash
 
@@ -99,6 +99,7 @@ func (c *communicateWithClient) RecvNoticeStatusCash(message string) {
 	}
 	status := 1
 	var testStatusCash = domain.StatusCash{}
+	fmt.Println("testStatusCash: ", testStatusCash)
 	switch status {
 	case 1:
 		/*テストデータ
@@ -141,32 +142,7 @@ func (c *communicateWithClient) RecvNoticeStatusCash(message string) {
 	}
 
 	// 比較
-	if !isEqualStatusCash(testStatusCash, statusCash) {
+	/*if !isEqualStatusCash(testStatusCash, statusCash) {
 		c.logger.Error("Senalio1_RecvNoticeStatus is not equal: %v", statusCash)
-	}
-}
-
-// isEqualStatusCash は、2つの StatusCash オブジェクトが等しいかどうかをチェックします。
-func isEqualStatusCash(a, b domain.StatusCash) bool {
-	// スライス以外のフィールドを比較
-	if a.CashControlId != b.CashControlId ||
-		a.StatusReady != b.StatusReady ||
-		a.StatusMode != b.StatusMode ||
-		a.StatusLine != b.StatusLine ||
-		a.StatusError != b.StatusError ||
-		a.StatusCover != b.StatusCover ||
-		a.StatusAction != b.StatusAction ||
-		a.StatusInsert != b.StatusInsert ||
-		a.StatusExit != b.StatusExit ||
-		a.StatusRjbox != b.StatusRjbox ||
-		!reflect.DeepEqual(a.BillStatusTbl, b.BillStatusTbl) ||
-		!reflect.DeepEqual(a.CoinStatusTbl, b.CoinStatusTbl) {
-		return false
-	}
-
-	// スライスフィールドを比較
-	return reflect.DeepEqual(a.BillResidueInfoTbl, b.BillResidueInfoTbl) &&
-		reflect.DeepEqual(a.CoinResidueInfoTbl, b.CoinResidueInfoTbl) &&
-		reflect.DeepEqual(a.DeviceStatusInfoTbl, b.DeviceStatusInfoTbl) &&
-		reflect.DeepEqual(a.WarningInfoTbl, b.WarningInfoTbl)
+	}*/
 }

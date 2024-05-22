@@ -30,10 +30,9 @@ func Router() {
 	logger.Info("config %+v", config)
 	//MQTTハンドラ作成
 	mqtt := NewMQTTHandler(logger, config.MqttConf.TCP, config.MqttConf.Port, domain.SrvName)
-	sysMqtt := NewMQTTHandler(logger, config.MqttConf.TCP, config.MqttConf.Port, domain.SrvName+"_sys")
 
 	// Start Contoller
-	Controller(mqtt, sysMqtt, logger, config)
+	Controller(mqtt, logger, config)
 }
 
 // 停止処理
@@ -41,6 +40,6 @@ func RouterStop() {
 	wgrps.Done()
 }
 
-func Controller(mqtt handler.MqttRepository, sysMqtt handler.MqttRepository, logger handler.LoggerRepository, config config.Configuration) {
+func Controller(mqtt handler.MqttRepository, logger handler.LoggerRepository, config config.Configuration) {
 
 }
