@@ -12,7 +12,7 @@ type equalsTexMoney struct {
 }
 
 func NewEqualsTexMoney(mqtt handler.MqttRepository,
-	logger handler.LoggerRepository) EqualsTexMoney {
+	logger handler.LoggerRepository) EqualsTexMoneyRepository {
 	return &equalsTexMoney{
 		mqtt:   mqtt,
 		logger: logger}

@@ -4,7 +4,10 @@ import (
 	"stub/config"
 	"stub/domain"
 	"stub/domain/handler"
+	interfaces "stub/interfaces/client"
+	"stub/usecases"
 	"sync"
+	"time"
 )
 
 var wgrps sync.WaitGroup
@@ -24,8 +27,7 @@ func Router() {
 		config.SystemConf.LogStopMutex,
 		config.SystemConf.LogStopWarn,
 		config.SystemConf.LogStopError,
-		config.SystemConf.LogStopFatal,
-		config.SystemConf.LogStopSequence)
+		config.SystemConf.LogStopFatal)
 	logger.Info("Program Start")
 	logger.Info("config %+v", config)
 	//MQTTハンドラ作成
@@ -42,4 +44,25 @@ func RouterStop() {
 
 func Controller(mqtt handler.MqttRepository, logger handler.LoggerRepository, config config.Configuration) {
 
+	equalsTexMoney := usecases.NewEqualsTexMoney(mqtt, logger)
+
+	//MQTTの接続を待機
+	waitMqttConnected(mqtt)
+
+	start := interfaces.NewStart(mqtt, logger, equalsTexMoney)
+	start.Senario1()
+
+	// 終了要求まで待機
+	wgrps.Wait()
+
+}
+
+// MQTT接続まで待機
+func waitMqttConnected(mqtt handler.MqttRepository) {
+	for {
+		if mqtt.InConnectionOpen() {
+			break
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
 }

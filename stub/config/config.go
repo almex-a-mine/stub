@@ -39,65 +39,11 @@ type ReqInfo struct {
 	PcId      string
 }
 
-// プログラム情報
-type ProInfo struct {
-	SupplyReceipt         bool //補充レシート発行有無(true:発行、false：発行無)
-	SalesCompleteCount    int  //SafeInfoManager 売上回収回数
-	CollectCount          int  //SafeInfoManager 回収操作回数
-	MaintenanceModeStatus int  //保守業務モードステータス
-}
-
-// OverFlowBoxType オーバーフローボックス(回収庫)情報
-// True: 有り false: 無し
-type OverFlowBoxType struct {
-	CoinOverFlowBoxType bool // 硬貨オーバーフローボックス存在有無
-	BillOverFlowBoxType bool // 紙幣オーバーフローボックス存在有無
-}
-
-// 不足エラー枚数
-type ErrorNothing struct {
-	Yen []int //枚数配列
-}
-
-// 不足注意枚数
-type AlertNothing struct {
-	Yen []int //枚数配列
-}
-
-// あふれエラー枚数
-type ErrorMany struct {
-	Yen      []int //枚数配列
-	AllMoney int   //全硬貨
-}
-
-// あふれ注意枚数
-type AlertMany struct {
-	Yen      []int //枚数配列
-	AllMoney int   //全硬貨
-}
-
-// リミット条件チェックパターン:リミット条件値と枚数の比較方法を変更する
-type LimitCheck struct {
-	Pattern int //リミット条件チェックパターン
-}
-
-// 枚数制限情報
-type LimitInfo struct {
-	ErrorNothing ErrorNothing //不足エラー枚数
-	AlertNothing AlertNothing //不足注意枚数
-	ErrorMany    ErrorMany    //あふれエラー枚数
-	AlertMany    AlertMany    //あふれ注意枚数
-	LimitCheck   LimitCheck   //リミット条件チェックパターン
-}
-
 // コンフィグ情報
 type Configuration struct {
-	MqttConf        MqttConf
-	SystemConf      SystemConf
-	ReqInfo         ReqInfo
-	ProInfo         ProInfo
-	TermNo          int //精算端末番号
-	OverFlowBoxType OverFlowBoxType
+	MqttConf   MqttConf
+	SystemConf SystemConf
+	ReqInfo    ReqInfo
 }
 
 var Config Configuration
@@ -130,12 +76,8 @@ func Initialize(moduleName string) Configuration {
 			//対象IPアドレス
 			ipaddrtbl, _ := getIpAddrList(cfg, "PROGRAM", ipAddrTbl)
 			Config.ReqInfo.PcId = ipaddrtbl[0]
-			//プログラム各種設定
-			Config.ProInfo, _ = getProgramInfo(cfg, "PROGRAM")
 		}
 	}
-	// 精算端末番号取得（端末番号Id+1が端末番号となる）
-	Config.TermNo = getTermId(dirPath) + 1
 
 	return Config
 }
@@ -243,17 +185,6 @@ func getSystemInfo(cfg *ini.File, appName string) (SystemConf, bool) {
 	conf.LogStopWarn = logStopWarn
 	conf.LogStopError = logStopError
 	conf.LogStopFatal = logStopFatal
-	return conf, true
-}
-
-// プログラム設定情報
-func getProgramInfo(cfg *ini.File, appName string) (ProInfo, bool) {
-	conf := ProInfo{}
-	conf.SupplyReceipt, _ = cfg.Section(appName).Key("Suplly_Recipt").Bool()
-	conf.SalesCompleteCount, _ = cfg.Section(appName).Key("SalesCompleteCount").Int()
-	conf.CollectCount, _ = cfg.Section(appName).Key("CollectCount").Int()
-	conf.MaintenanceModeStatus, _ = cfg.Section(appName).Key("maintenanceModeStatus").Int()
-
 	return conf, true
 }
 

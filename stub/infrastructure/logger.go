@@ -26,15 +26,14 @@ type logger struct {
 	VerifyName string
 	VerifyPath string
 	//ログ設定値
-	LogStopInfo     bool
-	LogStopTrace    bool
-	LogStopMqtt     bool
-	LogStopDebug    bool
-	LogStopMutex    bool
-	LogStopWarn     bool
-	LogStopError    bool
-	LogStopFatal    bool
-	LogStopSequence bool
+	LogStopInfo  bool
+	LogStopTrace bool
+	LogStopMqtt  bool
+	LogStopDebug bool
+	LogStopMutex bool
+	LogStopWarn  bool
+	LogStopError bool
+	LogStopFatal bool
 }
 
 var gLogger *logger
@@ -48,8 +47,7 @@ func NewLogger(maxLength int,
 	logStopMutex bool,
 	logStopWarn bool,
 	logStopError bool,
-	logStopFatal bool,
-	logStopSequence bool) handler.LoggerRepository {
+	logStopFatal bool) handler.LoggerRepository {
 	gLogger = &logger{}
 
 	// ログファイル名作成
@@ -76,7 +74,6 @@ func NewLogger(maxLength int,
 	gLogger.LogStopWarn = logStopWarn
 	gLogger.LogStopError = logStopError
 	gLogger.LogStopFatal = logStopFatal
-	gLogger.LogStopSequence = logStopSequence
 
 	return gLogger
 }
@@ -294,8 +291,4 @@ func (l *logger) Error(format string, v ...interface{}) {
 
 func (l *logger) Fatal(format string, v ...interface{}) {
 	l.WriteLocalLog(l.LogStopFatal, "[FATAL] ", &format, v...)
-}
-
-func (l *logger) Sequence(format string, v ...interface{}) {
-	l.WriteLocalLog(l.LogStopFatal, "[SEQUE] ", &format, v...)
 }

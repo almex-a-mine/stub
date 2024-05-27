@@ -66,7 +66,7 @@ func main() {
 func serviceMain() {
 	//開始処理
 	infrastructure.Router()
-	os.Exit(0)
+	//os.Exit(0)
 }
 
 // 終了検出

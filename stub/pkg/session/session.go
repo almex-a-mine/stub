@@ -17,7 +17,7 @@ func GetProcessSessionID() uint32 {
 	sessionID = 0xffffffff
 
 	if processIDToSessionID != 0 {
-		_, _, err := syscall.Syscall(
+		_, _, err := syscall.SyscallN(
 			uintptr(processIDToSessionID),
 			2,
 			uintptr(os.Getpid()),

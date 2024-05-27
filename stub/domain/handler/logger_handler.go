@@ -12,5 +12,4 @@ type LoggerRepository interface {
 	Warn(string, ...interface{})
 	Error(string, ...interface{})
 	Fatal(string, ...interface{})
-	Sequence(string, ...interface{})
 }
