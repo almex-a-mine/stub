@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"stub/config"
 	"stub/domain"
 	"stub/domain/handler"
 	"stub/usecases"
@@ -13,15 +14,19 @@ import (
 type start struct {
 	mqtt           handler.MqttRepository
 	logger         handler.LoggerRepository
+	config         config.Configuration
 	equalsTexMoney usecases.EqualsTexMoneyRepository
 }
 
-func NewStart(mqtt handler.MqttRepository,
+func NewStart(
+	mqtt handler.MqttRepository,
 	logger handler.LoggerRepository,
+	config config.Configuration,
 	equalsTexMoney usecases.EqualsTexMoneyRepository) Start {
 	return &start{
 		mqtt:           mqtt,
 		logger:         logger,
+		config:         config,
 		equalsTexMoney: equalsTexMoney}
 }
 
@@ -29,6 +34,10 @@ func (s *start) Senario1() {
 	//tex/unifunc/money/notice_status_cashを受信する
 	//s.mqtt.Subscribe("/tex/unifunc/money/notice_status_cash", s.RecvNoticeStatusCash)
 	s.mqtt.Subscribe("/tex/helper/dbdata/request_get_terminfo_now", s.RecvGetTerminfoNow)
+}
+
+func (s *start) Close() {
+	s.mqtt.Unsubscribe("/tex/helper/dbdata/request_get_terminfo_now")
 }
 
 // 通知のチェック
@@ -85,8 +94,10 @@ func (s *start) RecvNoticeStatusCash(message string) {
 	// 比較 //TODO: isEqualStatusCash関数の実装
 	if !s.equalsTexMoney.IsEqualStatusCash(testStatusCash, statusCash) {
 		s.logger.Error("Senalio1_RecvNoticeStatus is not equal: %v", statusCash)
+		s.Close()
 		os.Exit(1) // ステータスコード1でプログラムを終了
 	}
+	s.mqtt.Subscribe("/tex/helper/dbdata/request_get_terminfo_now", s.RecvGetTerminfoNow)
 }
 
 // 稼働データ管理
@@ -109,8 +120,8 @@ func (s *start) RecvGetTerminfoNow(message string) {
 		*/
 		test = domain.RequestGetTermInfoNow{
 			RequestInfo: domain.RequestInfo{
-				ProcessID: "00006220",
-				PcId:      "10.120.16.102",
+				//ProcessID: config.Config.ReqInfo.ProcessID, //プロセスIDは実行されるたび値が変わるので、スコープに入れない
+				PcId:      config.Config.ReqInfo.PcId,
 				RequestID: "TexMoney_1",
 			},
 		}
@@ -121,11 +132,12 @@ func (s *start) RecvGetTerminfoNow(message string) {
 			return     //データ不整合がある場合は終了
 		}
 
-		s.SendResultGetTermInfoNow()
+		s.SendResultGetTermInfoNow(req)
 	}
+	s.Close()
 }
 
-func (s *start) SendResultGetTermInfoNow() {
+func (s *start) SendResultGetTermInfoNow(req domain.RequestGetTermInfoNow) {
 	/*
 		[INFO ] 2024/04/23 11:14:55.922897 [Recv](MQTT)/tex/helper/dbdata/result_get_terminfo_now,
 		{"requestInfo":{"processId":"00001358","requestId":"TexMoney_1","pcId":"10.120.10.71"},
@@ -180,8 +192,8 @@ func (s *start) SendResultGetTermInfoNow() {
 	*/
 	result := domain.ResultGetTermInfoNow{
 		RequestInfo: domain.RequestInfo{
-			ProcessID: "00001358",
-			PcId:      "",
+			ProcessID: req.RequestInfo.ProcessID,
+			PcId:      config.Config.ReqInfo.PcId,
 			RequestID: "TexMoney_1",
 		},
 		Result:      true,
@@ -462,6 +474,6 @@ func (s *start) SendResultGetTermInfoNow() {
 	}
 
 	res, _ := json.Marshal(result)
-	topic := fmt.Sprintf("%v/%v", topic_base_db, "result_get_terminfo_now")
+	topic := fmt.Sprintf("%v%v", topic_base_db, "result_get_terminfo_now")
 	s.mqtt.Publish(topic, string(res))
 }

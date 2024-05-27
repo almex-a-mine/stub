@@ -398,15 +398,15 @@ func (c *helpCashService) SendResultGetTermInfoNow() {
 	}
 
 	res, _ := json.Marshal(result)
-	topic := fmt.Sprintf("%v/%v", topic_base_db, "result_get_terminfo_now")
+	topic := fmt.Sprintf("%v%v", topic_base_db, "result_get_terminfo_now")
 	c.mqtt.Publish(topic, string(res))
 }
 
 // isEqualStatusCash は、2つの StatusCash オブジェクトが等しいかどうかをチェックします。
 func isEqual(a, b domain.RequestGetTermInfoNow) bool {
 	// スライス以外のフィールドを比較
-	if a.RequestInfo.ProcessID != b.RequestInfo.ProcessID ||
-		a.RequestInfo.PcId != b.RequestInfo.PcId ||
+	//a.RequestInfo.ProcessID != b.RequestInfo.ProcessID ||
+	if a.RequestInfo.PcId != b.RequestInfo.PcId ||
 		a.RequestInfo.RequestID != b.RequestInfo.RequestID {
 		return false
 	}

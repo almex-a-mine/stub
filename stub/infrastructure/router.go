@@ -49,7 +49,7 @@ func Controller(mqtt handler.MqttRepository, logger handler.LoggerRepository, co
 	//MQTTの接続を待機
 	waitMqttConnected(mqtt)
 
-	start := interfaces.NewStart(mqtt, logger, equalsTexMoney)
+	start := interfaces.NewStart(mqtt, logger, config, equalsTexMoney)
 	start.Senario1()
 
 	// 終了要求まで待機
