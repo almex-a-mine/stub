@@ -34,6 +34,8 @@ func (s *start) Senario1() {
 	//tex/unifunc/money/notice_status_cashを受信する
 	//s.mqtt.Subscribe("/tex/unifunc/money/notice_status_cash", s.RecvNoticeStatusCash)
 	s.mqtt.Subscribe("/tex/helper/dbdata/request_get_terminfo_now", s.RecvGetTerminfoNow)
+	s.mqtt.Subscribe("/tex/helper/cashctl/request_amount_status", s.RecvAmountStatus)
+
 }
 
 func (s *start) Close() {
@@ -128,6 +130,7 @@ func (s *start) RecvGetTerminfoNow(message string) {
 		// 比較
 		if ret := isEqual(test, req); !ret {
 			s.logger.Error("RecvGetTerminfoNow is not equal: %t, %v", ret, sinario)
+			s.Close()
 			os.Exit(1) // ステータスコード1でプログラムを終了
 			return     //データ不整合がある場合は終了
 		}
@@ -476,4 +479,42 @@ func (s *start) SendResultGetTermInfoNow(req domain.RequestGetTermInfoNow) {
 	res, _ := json.Marshal(result)
 	topic := fmt.Sprintf("%v%v", topic_base_db, "result_get_terminfo_now")
 	s.mqtt.Publish(topic, string(res))
+}
+
+// 有高ステータス要求
+func (s *start) RecvAmountStatus(message string) {
+	var req domain.RequestGetTermInfoNow
+
+	err := json.Unmarshal([]byte(message), &req)
+	if err != nil {
+		s.logger.Error("json unmarshal error: %v", err)
+		return
+	}
+
+	var test = domain.RequestGetTermInfoNow{}
+	sinario := 1
+	switch sinario {
+	case 1:
+		/*
+			[INFO ] 2024/04/23 11:14:40.877889 [Send](MQTT)/tex/helper/dbdata/request_get_terminfo_now,
+			{"requestInfo":{"processId":"00001358","pcId":"10.120.10.71","requestId":"TexMoney_1"}}
+		*/
+		test = domain.RequestGetTermInfoNow{
+			RequestInfo: domain.RequestInfo{
+				//ProcessID: config.Config.ReqInfo.ProcessID, //プロセスIDは実行されるたび値が変わるので、スコープに入れない
+				PcId:      config.Config.ReqInfo.PcId,
+				RequestID: "TexMoney_1",
+			},
+		}
+		// 比較
+		if ret := isEqual(test, req); !ret {
+			s.logger.Error("RecvGetTerminfoNow is not equal: %t, %v", ret, sinario)
+			s.Close()
+			os.Exit(1) // ステータスコード1でプログラムを終了
+			return     //データ不整合がある場合は終了
+		}
+
+		s.SendResultGetTermInfoNow(req)
+	}
+	s.Close()
 }
